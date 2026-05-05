@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayNorte - Gestión de Feedback</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="mapa.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <div id="login-screen">
+        <div class="login-card">
+            <img src="https://images.unsplash.com/photo-1589561253898-768105ca91a8?q=80&w=400" alt="WayNorte Arica">
+            <h2>WayNorte</h2>
+            <p>Gestiona comentarios y calificaciones de los puntos de interés en Arica.</p>
+            <div id="buttonDiv"></div>
+            <button onclick="entrarInvitado()" class="btn-invitado">Entrar como invitado</button>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="legend" id="map-legend" style="display: none;">
+        <h4>Leyenda WayNorte</h4>
+        <div class="legend-item"><span class="circle hist"></span> Sitios Históricos</div>
+        <div class="legend-item"><span class="circle reci"></span> Reciclaje</div>
+        <div class="legend-item"><span class="circle tur"></span> Atracciones</div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="mapa.js"></script>
+</body>
+</html>
