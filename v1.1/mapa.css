@@ -1,0 +1,124 @@
+html, body { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Poppins', sans-serif; overflow: hidden; }
+#login-screen { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    /* Aquí colocamos tu imagen de fondo */
+    background-image: url('FondoNubes.jpg'); 
+    background-size: cover; 
+    background-position: center; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 9999; 
+}
+.login-card { 
+    background: transparent; 
+    padding: 30px; 
+    text-align: center; 
+    max-width: 600px; /* Lo hacemos más ancho para que quepa bien el texto */
+}
+.login-card img { 
+    display: none; 
+}
+.login-card h2 {
+    font-size: 5rem; /* Tamaño muy grande */
+    color: #ffffff;
+    margin: 0 0 15px 0;
+    font-weight: 700;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.2); /* Sombra suave para que resalte sobre las nubes */
+}
+.login-card p {
+    color: #ffffff;
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+    line-height: 1.6;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+}
+.btn-invitado { 
+    background-color: #5d536b; /* Color oscuro similar al de tu referencia */
+    color: white; 
+    border: none; 
+    padding: 15px 40px; /* Más alto y ancho */
+    border-radius: 30px; /* Forma de píldora */
+    cursor: pointer; 
+    font-family: 'Poppins', sans-serif; 
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    margin-top: 20px;
+}
+.btn-invitado:hover {
+    background-color: #4a4255;
+    transform: translateY(-2px); /* Se levanta un poquito */
+}
+
+#map { height: 100vh; width: 100vw; display: none; }
+
+/* Popups */
+.custom-popup .leaflet-popup-content-wrapper { padding: 0; overflow: hidden; border-radius: 15px; }
+.custom-popup .leaflet-popup-content { margin: 0; width: 300px !important; }
+.popup-img { width: 100%; height: 120px; object-fit: cover; }
+.popup-info { padding: 12px; }
+
+/* Comentarios */
+.comment-section { border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px; }
+.comment-list { font-size: 12px; max-height: 100px; overflow-y: auto; margin-bottom: 10px; }
+.comment-item { background: #f9f9f9; padding: 8px; border-radius: 5px; margin-bottom: 6px; border-left: 3px solid #1e90ff; display: flex; justify-content: space-between; align-items: center; }
+.btn-delete { background: #ff4757; color: white; border: none; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 10px; }
+.comment-input { width: 92%; padding: 6px; font-size: 12px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 5px; font-family: 'Poppins'; }
+.btn-comment { background: #2ed573; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: 600; }
+
+/* Nuevo Botón Flotante de GPS */
+.btn-locate { position: absolute; bottom: 165px; right: 20px; z-index: 1000; width: 50px; height: 50px; background: white; border: none; border-radius: 50%; cursor: pointer; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.btn-locate:hover { transform: scale(1.1); background: #f8f8f8; }
+
+/* Control de Capas (Esquina Sup. Derecha) */
+.leaflet-control-layers { border-radius: 12px !important; border: none !important; box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important; padding: 10px !important; font-family: 'Poppins'; }
+
+/* GPS Icon */
+.user-location-icon { background-color: #007bff; border: 2px solid white; border-radius: 50%; }
+.user-location-icon::after { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; background-color: #007bff; opacity: 0.4; animation: pulse 2s infinite; top: 0; left: 0; }
+@keyframes pulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(3); opacity: 0; } }
+
+/* Marcadores - Leyenda Compacta */
+.legend { 
+    position: absolute; 
+    bottom: 30px; 
+    right: 20px; 
+    z-index: 1000; 
+    background: white; 
+    padding: 10px 14px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
+    max-width: 140px; 
+}
+
+/* Espaciado del título de la leyenda */
+.legend h4 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.legend-item { 
+    display: flex; 
+    align-items: center; 
+    font-size: 11px; 
+    margin-bottom: 4px; 
+}
+
+.circle { 
+    width: 8px; 
+    height: 8px; 
+    border-radius: 50%; 
+    margin-right: 8px; 
+    flex-shrink: 0; 
+}
+
+.tur { background: #3388ff; }
+.reci { background: #2ed573; }
+.para { background: #f13030; }
