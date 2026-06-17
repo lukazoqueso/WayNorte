@@ -81,7 +81,7 @@ function initMap() {
         { id: "cristo_de_la_paz", nombre: "Cristo de la Paz", coords: [-18.481540, -70.323890], tipo: "turismo", img: "https://www.monumentos.gob.cl/sites/default/files/image-monumentos/00083_mh_15101.jpg" },
         { id: "ex_aduana_arica", nombre: "Edificio Histórico Ex Aduana", coords: [-18.477222, -70.321111], tipo: "turismo", img: "https://i.pinimg.com/originals/3c/2f/34/3c2f34b570e424ebddd2ae6e623f74f5.jpg" },
         { id: "ex_estacion_ferrocarril", nombre: "Ex Estación Ferrocarril Arica-La Paz", coords: [-18.476944, -70.320000], tipo: "turismo", img: "https://thumbs.dreamstime.com/b/ferrocarril-de-paz-del-arica-la-exterior-en-arica-chile-48382634.jpg" },
-        { id: "punto_limpio_bottai", nombre: "Punto Limpio Vidrio Bottai", coords: [-18.502013, -70.282928], tipo: "reciclaje", img: "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=jkl_StDIpTAlER2iIUKp4g&cb_client=search.gws-prod.gps&w=408&h=240&yaw=48.603054&pitch=0&thumbfov=100" },
+        { id: "punto_limpio_bottai", nombre: "Punto Limpio Vidrio Bottai", coords: [-18.511074, -70.276096], tipo: "reciclaje", img: "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=jkl_StDIpTAlER2iIUKp4g&cb_client=search.gws-prod.gps&w=408&h=240&yaw=48.603054&pitch=0&thumbfov=100" },
         { id: "", nombre: "", coords: [], tipo: "", img: "" }
     ];
 
