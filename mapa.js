@@ -11,7 +11,7 @@ async function registrarUsuario() {
     }
 
     try {
-        const respuesta = await fetch('http://localhost:3000/api/registro', {
+        const respuesta = await fetch('https://waynorte-backend.onrender.com/api/registro', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }) 
@@ -40,7 +40,8 @@ async function iniciarSesion() {
     }
 
     try {
-        const respuesta = await fetch('http://localhost:3000/api/login', {
+        // CORREGIDO: Apunta a /api/login
+        const respuesta = await fetch('https://waynorte-backend.onrender.com/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -71,7 +72,6 @@ function mostrarMapa() {
 
 // --- 2. GESTIÓN DE COMENTARIOS REALES (CON BACKEND) ---
 
-// # Envía un comentario nuevo vinculado al marcador y al usuario logueado
 window.enviarComentario = async function(marcadorId) {
     const input = document.getElementById(`input-${marcadorId}`);
     const stars = document.getElementById(`stars-${marcadorId}`).value;
@@ -80,12 +80,13 @@ window.enviarComentario = async function(marcadorId) {
     if (texto === "") return; 
 
     try {
-        const respuesta = await fetch('http://localhost:3000/api/comentarios', {
+        // CORREGIDO: Apunta a /api/comentarios
+        const respuesta = await fetch('https://waynorte-backend.onrender.com/api/comentarios', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 marcador_id: marcadorId,
-                usuario_id: usuarioActual.id, // # Aquí vinculamos la ID del autor real
+                usuario_id: usuarioActual.id,
                 texto: texto,
                 estrellas: parseInt(stars)
             })
@@ -94,7 +95,6 @@ window.enviarComentario = async function(marcadorId) {
         if (respuesta.ok) {
             input.value = ""; 
             alert("Reseña publicada con éxito.");
-            // # Pequeño truco técnico: cerramos el popup para obligar a que se refresque con el nuevo dato al reabrirlo
             document.querySelector('.leaflet-popup-close-button').click();
         } else {
             alert("No se pudo guardar la reseña.");
@@ -104,9 +104,7 @@ window.enviarComentario = async function(marcadorId) {
     }
 };
 
-// # Elimina un comentario de la base de datos verificando si eres el autor original
 window.eliminarComentario = async function(comentarioId, autorId) {
-    // # Control de negocio: Un usuario no puede borrar comentarios de otras personas
     if (usuarioActual.id !== autorId) {
         return alert("Disculpa, solo puedes eliminar tus propias reseñas.");
     }
@@ -114,7 +112,8 @@ window.eliminarComentario = async function(comentarioId, autorId) {
     if (!confirm("¿Deseas eliminar este comentario permanentemente?")) return;
 
     try {
-        const respuesta = await fetch(`http://localhost:3000/api/comentarios/${comentarioId}`, {
+        // CORREGIDO: Mantiene la ID dinámica del comentario al final
+        const respuesta = await fetch(`https://waynorte-backend.onrender.com/api/comentarios/${comentarioId}`, {
             method: 'DELETE'
         });
 
@@ -127,10 +126,10 @@ window.eliminarComentario = async function(comentarioId, autorId) {
     }
 };
 
-// # Función dinámica que consulta al backend los comentarios de un pin justo cuando el usuario hace clic
 async function cargarComentariosPopup(marcadorId) {
     try {
-        const respuesta = await fetch(`http://localhost:3000/api/comentarios/${marcadorId}`);
+        // CORREGIDO: Mantiene la ID del marcador al final
+        const respuesta = await fetch(`https://waynorte-backend.onrender.com/api/comentarios/${marcadorId}`);
         const comentarios = await respuesta.json();
 
         const listaHtml = comentarios.map(c => `
@@ -161,7 +160,8 @@ async function initMap() {
     const layerParaderos = L.layerGroup().addTo(map);
 
     try {
-        const respuesta = await fetch('http://localhost:3000/api/marcadores');
+        // CORREGIDO: Estaba en localhost, ahora apunta a la nube
+        const respuesta = await fetch('https://waynorte-backend.onrender.com/api/marcadores');
         const puntosArica = await respuesta.json(); 
 
         puntosArica.forEach(p => {
@@ -169,7 +169,6 @@ async function initMap() {
             const iconReciclaje = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
             const iconParadero = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
 
-            // # Construimos la tarjeta visual dejando un contenedor vacío con una ID única para inyectar los comentarios dinámicamente
             const card = `
                 <div class="custom-card">
                     <img src="${p.img}" class="popup-img">
@@ -196,7 +195,6 @@ async function initMap() {
 
             const marker = L.marker(coordenadasReales, { icon: iconoActual }).bindPopup(card, { className: 'custom-popup' });
             
-            // # ESCUCHADOR CLAVE: Cuando el usuario abra este popup específico, mandamos a pedir sus comentarios reales
             marker.on('popupopen', () => {
                 cargarComentariosPopup(p.id);
             });
@@ -209,7 +207,6 @@ async function initMap() {
         const overlays = { "📍 Turismo": layerTurismo, "♻️ Reciclaje": layerReciclaje, "🚌 Paraderos": layerParaderos };
         L.control.layers(null, overlays, { collapsed: false }).addTo(map);
 
-        // --- GPS ---
         const gpsIcon = L.divIcon({ className: 'user-location-icon', iconSize: [14, 14], iconAnchor: [7, 7] });
         let userMarker = L.marker([0, 0], { icon: gpsIcon }).addTo(map);
         let currentLatLng = null;
