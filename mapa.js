@@ -54,6 +54,9 @@ async function iniciarSesion() {
         } else {
             usuarioActual = data.usuario; 
             alert(`¡Bienvenido a WayNorte, ${usuarioActual.email}!`);
+            if (usuarioActual.email === 'martin@uta.cl') {
+                usuarioActual.rol = 'admin';
+            }
             mostrarMapa(); 
         }
     } catch (error) {
@@ -105,21 +108,27 @@ window.enviarComentario = async function(marcadorId) {
 };
 
 window.eliminarComentario = async function(comentarioId, autorId) {
-    if (usuarioActual.id !== autorId) {
-        return alert("Disculpa, solo puedes eliminar tus propias reseñas.");
+    const esAutor = usuarioActual && (Number(usuarioActual.id) === Number(autorId));
+    const esAdmin = usuarioActual && (usuarioActual.rol === 'admin');
+
+    if (!esAutor && !esAdmin) {
+        return alert("Disculpa, solo puedes eliminar tus propias reseñas o debes ser administrador.");
     }
 
     if (!confirm("¿Deseas eliminar este comentario permanentemente?")) return;
 
     try {
-        // CORREGIDO: Mantiene la ID dinámica del comentario al final
         const respuesta = await fetch(`https://waynorte-backend.onrender.com/api/comentarios/${comentarioId}`, {
             method: 'DELETE'
         });
 
         if (respuesta.ok) {
-            alert("Comentario eliminado.");
-            document.querySelector('.leaflet-popup-close-button').click();
+            alert("Comentario eliminado con éxito.");
+            // Cierra el popup para forzar la actualización de los datos
+            const closeBtn = document.querySelector('.leaflet-popup-close-button');
+            if (closeBtn) closeBtn.click();
+        } else {
+            alert("El servidor no permitió eliminar el comentario. Revisa los permisos en el backend.");
         }
     } catch (error) {
         console.error("Error al eliminar comentario:", error);
@@ -128,19 +137,28 @@ window.eliminarComentario = async function(comentarioId, autorId) {
 
 async function cargarComentariosPopup(marcadorId) {
     try {
-        // CORREGIDO: Mantiene la ID del marcador al final
         const respuesta = await fetch(`https://waynorte-backend.onrender.com/api/comentarios/${marcadorId}`);
         const comentarios = await respuesta.json();
 
-        const listaHtml = comentarios.map(c => `
-            <div class="comment-item" style="border-left: 3px solid ${usuarioActual.id === c.usuario_id ? '#2ed573' : '#1e90ff'}">
-                <span>
-                    <b>${"★".repeat(c.estrellas)}</b> <br>
-                    <small style="color: #888">${c.email.split('@')[0]}:</small> ${c.texto}
-                </span>
-                ${usuarioActual.id === c.usuario_id ? `<button class="btn-delete" onclick="eliminarComentario(${c.id}, ${c.usuario_id})">✕</button>` : ''}
-            </div>
-        `).join("");
+        // Esto te mostrará en la consola F12 qué rol tiene el usuario activo
+        console.log("Usuario actual en el mapa:", usuarioActual);
+
+        const listaHtml = comentarios.map(c => {
+            // Validación robusta: verifica si es el dueño del comentario O si tiene rol 'admin'
+            const esAutor = usuarioActual && (Number(usuarioActual.id) === Number(c.usuario_id));
+            const esAdmin = usuarioActual && (usuarioActual.rol === 'admin');
+            const puedeEliminar = esAutor || esAdmin;
+
+            return `
+                <div class="comment-item" style="border-left: 3px solid ${esAutor ? '#2ed573' : '#1e90ff'}">
+                    <span>
+                        <b>${"★".repeat(c.estrellas)}</b> <br>
+                        <small style="color: #888">${c.email ? c.email.split('@')[0] : 'Anónimo'}:</small> ${c.texto}
+                    </span>
+                    ${puedeEliminar ? `<button class="btn-delete" onclick="eliminarComentario(${c.id}, ${c.usuario_id})">✕</button>` : ''}
+                </div>
+            `;
+        }).join("");
 
         document.getElementById(`comment-list-${marcadorId}`).innerHTML = listaHtml || "Sin reseñas aún. ¡Sé el primero!";
     } catch (error) {
