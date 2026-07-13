@@ -20,13 +20,6 @@ const db = firebase.firestore();
 
 let usuarioActual = null; 
 
-// boton de invitado funcion
-function entrarComoInvitado() {
-    alert("Bienvenido, estás en modo invitado. No podrás comentar.");
-    usuarioActual = { id: null, email: 'invitado' }; 
-    mostrarMapa();
-}
-
 async function registrarUsuario() {
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value.trim();
@@ -177,10 +170,6 @@ async function cargarComentariosPopup(marcadorId) {
 // --- 3. INICIALIZACIÓN DEL MAPA ---
 
 async function initMap() {
-    // 1. Inicialización del mapa (con zoom inicial 15 como conversamos)
-    const map = L.map('map').setView([-18.4783, -70.3126], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
     
     // NUEVO: Definimos la "caja" de coordenadas de Arica para no dejar salir al usuario
     const limitesArica = [
@@ -207,20 +196,6 @@ async function initMap() {
     const layerParaderos = L.layerGroup().addTo(map);
 
     try {
-        // 2. Carga de marcadores desde la nube
-        const respuesta = await fetch('https://waynorte-backend.onrender.com/api/marcadores');
-        const puntosArica = await respuesta.json(); 
-
-        // 3. Lógica para determinar si el usuario puede comentar
-        const puedeComentar = usuarioActual !== null && usuarioActual.id !== null;
-
-        puntosArica.forEach(p => {
-            // Configuración de iconos
-            const iconTurismo = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
-            const iconReciclaje = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
-            const iconParadero = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
-
-            // 4. Estructura del popup con lógica condicional para invitados
         // CORREGIDO: Estaba en localhost, ahora apunta a la nube
         const respuesta = await fetch('https://waynorte-backend.onrender.com/api/marcadores');
         const puntosArica = await respuesta.json(); 
@@ -288,17 +263,6 @@ async function initMap() {
                     <img src="${p.img}" class="popup-img">
                     <div class="popup-info">
                         <h3>${p.nombre}</h3>
-                        <div class="comment-section">
-                            <div class="comment-list" id="comment-list-${p.id}">Cargando opiniones...</div>
-                            
-                            ${puedeComentar ? `
-                                <select id="stars-${p.id}" class="comment-input">
-                                    <option value="5">★★★★★</option><option value="4">★★★★</option>
-                                    <option value="3">★★★</option><option value="2">★★</option><option value="1">★</option>
-                                </select>
-                                <input type="text" id="input-${p.id}" class="comment-input" placeholder="Tu opinión...">
-                                <button onclick="enviarComentario('${p.id}')" class="btn-comment">Publicar</button>
-                            ` : `<p><i>Inicia sesión para dejar una reseña.</i></p>`}
                         ${lineasHtml}
                         <div class="comment-section">
                             <div class="comment-list" id="comment-list-${p.id}">Cargando opiniones...</div>
@@ -317,10 +281,6 @@ async function initMap() {
             else if (p.tipo === "reciclaje") iconoActual = iconReciclaje;
             else if (p.tipo === "paradero") iconoActual = iconParadero;
 
-            const marker = L.marker([parseFloat(p.latitud), parseFloat(p.longitud)], { icon: iconoActual }).bindPopup(card, { className: 'custom-popup' });
-            
-            marker.on('popupopen', () => {
-                cargarComentariosPopup(p.id);
             const coordenadasReales = [parseFloat(p.latitud), parseFloat(p.longitud)];
 
             const marker = L.marker(coordenadasReales, { icon: iconoActual }).bindPopup(card, { className: 'custom-popup' });
@@ -349,8 +309,6 @@ async function initMap() {
             else if (p.tipo === "paradero") marker.addTo(layerParaderos);
         });
 
-
-        // Localización usuario
         const overlays = { "📍 Turismo": layerTurismo, "♻️ Reciclaje": layerReciclaje, "🚌 Paraderos": layerParaderos };
         L.control.layers(null, overlays, { collapsed: false }).addTo(map);
 

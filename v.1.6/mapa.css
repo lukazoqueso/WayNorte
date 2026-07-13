@@ -54,24 +54,6 @@ html, body { /* # Selecciona toda la estructura base de tu página web. */
     z-index: 20; 
 }
 
-.btn-invitado {
-    background-color: transparent;
-    color: white;
-    border: 1px solid white;
-    padding: 10px 20px;
-    border-radius: 20px;
-    margin-top: 10px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 10000; 
-}
-.btn-invitado:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
 /* --- NUEVOS ESTILOS DEL FORMULARIO DE AUTENTICACIÓN --- */
 .auth-container { /* # Contenedor de los inputs y botones nuevos. */
     display: flex; /* # Activa Flexbox para los elementos internos. */
