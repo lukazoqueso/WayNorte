@@ -125,11 +125,6 @@ window.enviarComentario = async function(marcadorId) {
 window.eliminarComentario = async function(comentarioId, autorId) {
     if (usuarioActual.id !== autorId) {
         return alert("Disculpa, solo puedes eliminar tus propias reseñas.");
-    const esAutor = usuarioActual && (Number(usuarioActual.id) === Number(autorId));
-    const esAdmin = usuarioActual && (usuarioActual.rol === 'admin');
-
-    if (!esAutor && !esAdmin) {
-        return alert("Disculpa, solo puedes eliminar tus propias reseñas o debes ser administrador.");
     }
 
     if (!confirm("¿Deseas eliminar este comentario permanentemente?")) return;
@@ -143,17 +138,11 @@ window.eliminarComentario = async function(comentarioId, autorId) {
         if (respuesta.ok) {
             alert("Comentario eliminado.");
             document.querySelector('.leaflet-popup-close-button').click();
-            alert("Comentario eliminado con éxito.");
-            // Cierra el popup para forzar la actualización de los datos
-            const closeBtn = document.querySelector('.leaflet-popup-close-button');
-            if (closeBtn) closeBtn.click();
-        } else {
-            alert("El servidor no permitió eliminar el comentario. Revisa los permisos en el backend.");
         }
     } catch (error) {
         console.error("Error al eliminar comentario:", error);
     }
-}};
+};
 
 async function cargarComentariosPopup(marcadorId) {
     try {
@@ -170,25 +159,6 @@ async function cargarComentariosPopup(marcadorId) {
                 ${usuarioActual.id === c.usuario_id ? `<button class="btn-delete" onclick="eliminarComentario(${c.id}, ${c.usuario_id})">✕</button>` : ''}
             </div>
         `).join("");
-        // Esto te mostrará en la consola F12 qué rol tiene el usuario activo
-        console.log("Usuario actual en el mapa:", usuarioActual);
-
-        const listaHtml = comentarios.map(c => {
-            // Validación robusta: verifica si es el dueño del comentario O si tiene rol 'admin'
-            const esAutor = usuarioActual && (Number(usuarioActual.id) === Number(c.usuario_id));
-            const esAdmin = usuarioActual && (usuarioActual.rol === 'admin');
-            const puedeEliminar = esAutor || esAdmin;
-
-            return `
-                <div class="comment-item" style="border-left: 3px solid ${esAutor ? '#2ed573' : '#1e90ff'}">
-                    <span>
-                        <b>${"★".repeat(c.estrellas)}</b> <br>
-                        <small style="color: #888">${c.email ? c.email.split('@')[0] : 'Anónimo'}:</small> ${c.texto}
-                    </span>
-                    ${puedeEliminar ? `<button class="btn-delete" onclick="eliminarComentario(${c.id}, ${c.usuario_id})">✕</button>` : ''}
-                </div>
-            `;
-        }).join("");
 
         document.getElementById(`comment-list-${marcadorId}`).innerHTML = listaHtml || "Sin reseñas aún. ¡Sé el primero!";
     } catch (error) {
@@ -361,33 +331,6 @@ async function initMap() {
         console.error("Error al conectar con el servidor de WayNorte:", error);
         alert("No se pudieron cargar los marcadores desde la base de datos.");
     }
-}
-
-async function CargarTablaUsuariosAdmin(){
-    const peticion = await fetch('https://waynorte-backend.onrender.com/api/usuarios')
-    const usuarios = await peticion.json();
-    const tablaContenedor = document.getElementById("cuerpo-tabla-usuarios");
-    const listaFilasHtml = usuarios.map(u => {
-    
-        //condicion para asignar admin o quitar admin
-        const textoBoton = u.rol === 'admin' ? 'Quitar Admin' : 'Hacer Admin';
-        const claseBoton = u.rol === 'admin' ? 'btn-quitar' : 'btn-asignar';
-
-        return `
-            <tr>
-                <td>${u.id}</td>
-                <td>${u.email}</td>
-                <td>${u.rol}</td>
-                <td>
-                    <button class="${claseBoton}" onclick="cambiarRolUsuario(${u.id}, '${u.rol}')">
-                        ${textoBoton}
-                    </button>
-                </td>
-            </tr>
-        `;
-        }).join("");
-    tablaContenedor.innerHTML = listaFilasHtml;
-
 }
 
 // --- NUEVO: 4. LÓGICA PARA DIBUJAR LAS RUTAS DESDE FIRESTORE CON FLECHAS ---
