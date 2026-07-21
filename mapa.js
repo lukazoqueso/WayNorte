@@ -177,18 +177,13 @@ async function cargarComentariosPopup(marcadorId) {
 // --- 3. INICIALIZACIÓN DEL MAPA ---
 
 async function initMap() {
-    // 1. Inicialización del mapa (con zoom inicial 15 como conversamos)
-    const map = L.map('map').setView([-18.4783, -70.3126], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-    
-    // NUEVO: Definimos la "caja" de coordenadas de Arica para no dejar salir al usuario
+    // Definimos la "caja" de coordenadas de Arica para no dejar salir al usuario
     const limitesArica = [
         [-18.5600, -70.3800], // Esquina Suroeste (Hacia el mar y sur)
         [-18.4000, -70.2000]  // Esquina Noreste (Hacia el valle y norte)
     ];
 
-    // ACTUALIZADO: Se agrega la configuración de límites al iniciar el mapa
+    // Se agrega la configuración de límites al iniciar el mapa usando la variable global 'map'
     map = L.map('map', {
         maxBounds: limitesArica,      // Bloquea la cámara dentro de este rectángulo
         maxBoundsViscosity: 1.0,      // Hace que el borde sea sólido (no rebota)
@@ -197,7 +192,7 @@ async function initMap() {
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // NUEVO: Oculta la tarjetita automáticamente al pellizcar o alejar el mapa para que no estorbe la vista
+    // Oculta la tarjetita automáticamente al pellizcar o alejar el mapa para que no estorbe la vista
     map.on('zoomstart', () => {
         map.closePopup();
     });
@@ -207,31 +202,20 @@ async function initMap() {
     const layerParaderos = L.layerGroup().addTo(map);
 
     try {
-        // 2. Carga de marcadores desde la nube
+        // Carga de marcadores desde la nube
         const respuesta = await fetch('https://waynorte-backend.onrender.com/api/marcadores');
         const puntosArica = await respuesta.json(); 
 
-        // 3. Lógica para determinar si el usuario puede comentar
+        // Lógica para determinar si el usuario puede comentar
         const puedeComentar = usuarioActual !== null && usuarioActual.id !== null;
 
         puntosArica.forEach(p => {
-            // Configuración de iconos
-            const iconTurismo = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
-            const iconReciclaje = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
-            const iconParadero = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
-
-            // 4. Estructura del popup con lógica condicional para invitados
-        // CORREGIDO: Estaba en localhost, ahora apunta a la nube
-        const respuesta = await fetch('https://waynorte-backend.onrender.com/api/marcadores');
-        const puntosArica = await respuesta.json(); 
-
-        puntosArica.forEach(p => {
-            // NUEVO: Íconos más pequeños [18, 29] para no cubrir toda la ciudad cuando te alejas
+            // Íconos más pequeños [18, 29] para no cubrir toda la ciudad cuando te alejas
             const iconTurismo = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [18, 29], iconAnchor: [9, 29], popupAnchor: [1, -24], shadowSize: [29, 29] });
             const iconReciclaje = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [18, 29], iconAnchor: [9, 29], popupAnchor: [1, -24], shadowSize: [29, 29] });
             const iconParadero = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [18, 29], iconAnchor: [9, 29], popupAnchor: [1, -24], shadowSize: [29, 29] });
 
-            // --- NUEVO: Generar el HTML de las líneas Ocultando botones que no corresponden ---
+            // Generar el HTML de las líneas Ocultando botones que no corresponden
             let lineasHtml = "";
             if (p.lineas_que_pasan && p.lineas_que_pasan.length > 0) {
                 lineasHtml = `<div class="contenedor-lineas">
@@ -245,11 +229,8 @@ async function initMap() {
                         <span class="micro-titulo">🚌 <strong>${linea.nombre}</strong>${destinoTxt}</span>
                         <div class="opciones-ruta">`;
 
-                    // Si el sentido es "ida" O si aún no le asignas sentido en pgAdmin
                     if (linea.sentido === 'ida' || !linea.sentido) {
                         const idIda = `${linea.nombre.trim()}_ruta_ida`;
-                        
-                        // CORREGIDO: Usamos la clase "switch-ruta" y "data-idcapa" para sincronizarlos después
                         lineasHtml += `
                             <label class="toggle-label">
                                 <div class="color-dot" style="background-color: #1e90ff;"></div> Ida
@@ -260,11 +241,8 @@ async function initMap() {
                             </label>`;
                     }
 
-                    // Si el sentido es "vuelta" O si aún no le asignas sentido en pgAdmin
                     if (linea.sentido === 'vuelta' || !linea.sentido) {
                         const idVuelta = `${linea.nombre.trim()}_ruta_vuelta`;
-                        
-                        // CORREGIDO: Usamos la clase "switch-ruta" y "data-idcapa" para sincronizarlos después
                         lineasHtml += `
                             <label class="toggle-label">
                                 <div class="color-dot" style="background-color: #ba1a3a;"></div> Vuelta
@@ -288,6 +266,7 @@ async function initMap() {
                     <img src="${p.img}" class="popup-img">
                     <div class="popup-info">
                         <h3>${p.nombre}</h3>
+                        ${lineasHtml}
                         <div class="comment-section">
                             <div class="comment-list" id="comment-list-${p.id}">Cargando opiniones...</div>
                             
@@ -299,15 +278,6 @@ async function initMap() {
                                 <input type="text" id="input-${p.id}" class="comment-input" placeholder="Tu opinión...">
                                 <button onclick="enviarComentario('${p.id}')" class="btn-comment">Publicar</button>
                             ` : `<p><i>Inicia sesión para dejar una reseña.</i></p>`}
-                        ${lineasHtml}
-                        <div class="comment-section">
-                            <div class="comment-list" id="comment-list-${p.id}">Cargando opiniones...</div>
-                            <select id="stars-${p.id}" class="comment-input">
-                                <option value="5">★★★★★</option><option value="4">★★★★</option>
-                                <option value="3">★★★</option><option value="2">★★</option><option value="1">★</option>
-                            </select>
-                            <input type="text" id="input-${p.id}" class="comment-input" placeholder="Tu opinión...">
-                            <button onclick="enviarComentario('${p.id}')" class="btn-comment">Publicar</button>
                         </div>
                     </div>
                 </div>`;
@@ -317,18 +287,13 @@ async function initMap() {
             else if (p.tipo === "reciclaje") iconoActual = iconReciclaje;
             else if (p.tipo === "paradero") iconoActual = iconParadero;
 
-            const marker = L.marker([parseFloat(p.latitud), parseFloat(p.longitud)], { icon: iconoActual }).bindPopup(card, { className: 'custom-popup' });
-            
-            marker.on('popupopen', () => {
-                cargarComentariosPopup(p.id);
             const coordenadasReales = [parseFloat(p.latitud), parseFloat(p.longitud)];
-
             const marker = L.marker(coordenadasReales, { icon: iconoActual }).bindPopup(card, { className: 'custom-popup' });
             
             marker.on('popupopen', () => {
                 cargarComentariosPopup(p.id);
                 
-                // --- NUEVO: Sincronización visual de los botones (switches) ---
+                // Sincronización visual de los botones (switches)
                 // Le damos un respiro pequeñito de 10 milisegundos para que la tarjeta se dibuje en la pantalla
                 setTimeout(() => {
                     const switches = document.querySelectorAll('.switch-ruta');
@@ -348,7 +313,6 @@ async function initMap() {
             else if (p.tipo === "reciclaje") marker.addTo(layerReciclaje);
             else if (p.tipo === "paradero") marker.addTo(layerParaderos);
         });
-
 
         // Localización usuario
         const overlays = { "📍 Turismo": layerTurismo, "♻️ Reciclaje": layerReciclaje, "🚌 Paraderos": layerParaderos };
